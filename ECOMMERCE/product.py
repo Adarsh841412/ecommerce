@@ -1,9 +1,10 @@
-def add_products(user_id,user_data,user_product):
+from datetime import date
+def add_products(user_id,curr_user_detail,user_product):
     print("\n----------------------------------")
     print("ADD PRODUCTS")
     print("----------------------------------")
 
-    print("Logged in user:", curr_user_detail)
+    print("Logged in user:", curr_user_detail,)
 
     count_of_products = int(input("\nHow many products you want to add: "))
 
@@ -29,7 +30,7 @@ def add_products(user_id,user_data,user_product):
         count_of_products -= 1
 
 
-def view_products(user_detail,user_data,user_product):
+def view_products(user_detail,user_product):
     print("\n----------------------------------")
     print("YOUR PRODUCTS")
     print("----------------------------------")
@@ -42,7 +43,7 @@ def view_products(user_detail,user_data,user_product):
     print(list(curr_user_products))
 
 
-def update_product(user_id,user_data,user_product):
+def update_product(user_id,curr_user_detail,user_product):
     print("\n----------------------------------")
     print("UPDATE PRODUCT")
     print("----------------------------------")
@@ -81,7 +82,7 @@ def update_product(user_id,user_data,user_product):
     print(user_product)
 
 
-def delete_product(user_id,user_data,user_product):
+def delete_product(user_id,curr_user_detail,user_product):
     print("\n----------------------------------")
     print("DELETE PRODUCT")
     print("----------------------------------")
