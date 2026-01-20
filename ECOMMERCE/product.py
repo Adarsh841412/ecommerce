@@ -1,4 +1,10 @@
 from datetime import date
+today=date.today()
+today=today.strftime("%B %d, %Y")
+def check_is_digit(data):
+    if data.isdigit()==False:
+        return False
+    return True    
 def add_products(user_id,curr_user_detail,user_product):
     print("\n----------------------------------")
     print("ADD PRODUCTS")
@@ -6,15 +12,33 @@ def add_products(user_id,curr_user_detail,user_product):
 
     print("Logged in user:", curr_user_detail,)
 
-    count_of_products = int(input("\nHow many products you want to add: "))
+    count_of_products = input("\nHow many products you want to add: ").strip()
+     
+    while(count_of_products.isdigit()==False):
+        print("invalid input")
+        count_of_products = input("\nHow many products you want to add: ").strip()
+        while(not check_is_digit(count_of_products)):
+            print("invalid input")
+            count_of_products = input("\nHow many products you want to add: ").strip()
+    count_of_products = int(count_of_products)
 
     while count_of_products > 0:
         print("\nEnter product details")
         print("----------------------")
-        name = input("Product name     : ")
-        price = int(input("Product price    : "))
-        quantity = int(input("Product quantity : "))
-        buying_date = date.today()
+        name = input("Product name     : ").strip()
+        while(name.isalpha()==False):
+            print("name should only contain alphabet")
+            name = input("Product name     : ").strip()
+
+        price = input("Product price    : ").strip()
+        while(not check_is_digit(price)):
+            print("invalid input, it must be integer")
+            price = input("Product price    : ").strip()
+        quantity = input("Product quantity : ").strip()
+        while(not check_is_digit(quantity)):
+             print("invalid input, it must be integer")
+             quantity = input("Product quantity : ").strip()
+        buying_date = today
 
         user_product.append({
             "name": name,
@@ -48,7 +72,8 @@ def update_product(user_id,curr_user_detail,user_product):
     print("UPDATE PRODUCT")
     print("----------------------------------")
 
-    name_of_product = input("Enter product name to update: ")
+    name_of_product = input("Enter product name to update: ").strip()
+
 
     matched_products = list(
         filter(
