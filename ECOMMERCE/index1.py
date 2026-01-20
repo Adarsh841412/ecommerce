@@ -9,14 +9,30 @@ print("\n==================================================")
 print("        USER PRODUCT MANAGEMENT SYSTEM")
 print("==================================================\n")
 
-data_login_signup = int(input(
+data_login_signup = input(
     f"1. Signup ({len(user_data)} users)\n"
-    f"2. Exit\n"
+    f"2. Restart\n"
+     f"3. Exit\n"
     f"----------------------------------\n"
     f"Enter choice: "
-))
+)
 
-if data_login_signup == 2:
+while(data_login_signup.isdigit()==False or int(data_login_signup)>3):
+  print("inappropirate selection ,Try again")
+  data_login_signup = input(
+    f"1. Signup ({len(user_data)} users)\n"
+    f"2. Restart\n"
+    f"3. Exit\n"
+    f"----------------------------------\n"
+    f"Enter choice: "
+)
+
+if data_login_signup=='3':
+    print("program is exit")
+    sys.exit()
+
+
+if data_login_signup == '2':
     print("Restarting program...")
     os.execv(sys.executable, ['python'] + sys.argv)
 
@@ -32,55 +48,66 @@ def check_existing_user(user_data, email):
     return False
 
 
-if data_login_signup == 1:
+if data_login_signup == '1':
     print("\n----------------------------------")
     print("USER SIGNUP")
     print("----------------------------------")
 
-    count = int(input("How many users want to signup: "))
-
-    while count > 0:
+    while(True):
         new_user_data = signup()
         email = new_user_data["email"]
 
         if check_existing_user(user_data, email):
             print("User already exists")
+            continue
         else:
             user_data.append(new_user_data)
             print("Signup successful")
+            break
 
-        count -= 1
 
-    data_login_signup = int(input(
+    data_login_signup = input(
         "\n1. Login\n"
         "2. Exit\n"
         "-----------------\n"
         "Enter choice: "
-    ))
-
-    if data_login_signup == 2:
+    )
+    while(not data_login_signup.isdigit() or int(data_login_signup)>2):
+        print("invalid input")
+        data_login_signup = input(
+        "\n1. Login\n"
+        "2. Exit\n"
+        "-----------------\n"
+        "Enter choice: ")
+                   
+   
+    if data_login_signup == '2':
         print("\nProgram ended.\n")
         sys.exit()
 
 
-if data_login_signup == 1:
+if data_login_signup =='1':
     print("\n----------------------------------")
     print("USER LOGIN")
     print("----------------------------------")
 
     while True:
-        email = input("Email    : ")
-        password = input("Password : ")
+        email = input("Email    : ").strip()
+        password = input("Password : ").strip()
 
         result = login(user_data, email, password)
 
         if result == "success":
             print("\nLogin successful")
             break
-        elif result == "reset":
+        elif result=="wrongemail":
+            print("you entered wrong email,Try again") 
+            continue   
+        elif result == "tryagain":
             continue
-        else:
-            print("Try again for login")
+        elif result=="reset":
+           continue
+        
 
     curr_user_detail = next(user for user in user_data if user["email"] == email)
 
@@ -93,21 +120,27 @@ if data_login_signup == 1:
         print("3. Update Product")
         print("4. Delete Product")
 
-        choice = int(input("\nEnter choice: "))
+        choice = input("\nEnter choice: ").strip()
 
         match choice:
-            case 1:
+            case '1':
                 add_products(curr_user_detail["id"], curr_user_detail, user_product)
-            case 2:
+            case '2':
                 view_products(curr_user_detail, user_product)
-            case 3:
+            case '3':
                 update_product(curr_user_detail["id"], curr_user_detail, user_product)
-            case 4:
+            case '4':
                 delete_product(curr_user_detail["id"], curr_user_detail, user_product)
             case _:
                 print("Invalid choice")
 
         cont = input("\nContinue? (yes/no): ").lower()
+        while("yes"  not in cont and 'no' not in cont):
+            print("invalid input")
+            cont = input("\nContinue? (yes/no): ").lower()
+            if cont=="yes" or cont=="no":
+                break
+
         if cont != "yes":
             print("\nThank you. Program finished.\n")
             break
