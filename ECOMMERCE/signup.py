@@ -1,84 +1,86 @@
-def check_password(password):
-    if len(password)<8:
-        print("password lengt must be greater than or equal to eight")
+import hashlib
+import uuid
+import pwinput
+
+
+def hash_password(password: str) -> str:
+    """Hash the password using SHA-256."""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
+def check_password(password: str) -> bool:
+    """Validate password complexity."""
+    if len(password) < 8:
+        print("Password length must be at least 8 characters")
         return False
-    
-    checkdigit = False
-    check_capital_alphabet = False
-    check_small_alphabet = False
-    check_special_characters = False
 
-    for i in password:
-        
-        if ord(i) >= 97 and ord(i) <= 122:
-            check_small_alphabet = True
+    check_digit = False
+    check_upper = False
+    check_lower = False
+    check_special = False
 
-  
-        elif ord(i) >= 65 and ord(i) <= 90:
-            check_capital_alphabet = True
+    for char in password:
+        if char.islower():
+            check_lower = True
+        elif char.isupper():
+            check_upper = True
+        elif char.isdigit():
+            check_digit = True
+        elif char in "@$*&#":
+            check_special = True
 
-    
-        elif ord(i) >= 48 and ord(i) <= 57:
-            checkdigit = True
-
-      
-        elif i in "@$*&#":
-            check_special_characters = True
-
-    if not checkdigit:
+    if not check_digit:
         print("Password should contain at least one digit")
         return False
-
-    if not check_capital_alphabet:
+    if not check_upper:
         print("Password should contain at least one uppercase letter")
         return False
-
-    if not check_small_alphabet:
+    if not check_lower:
         print("Password should contain at least one lowercase letter")
         return False
-
-    if not check_special_characters:
+    if not check_special:
         print("Password should contain at least one special character")
         return False
 
     return True
 
-def check_digit(name):
-    check_digits=False
-    for i in name:
-     if ord(i) >= 48 and ord(i) <= 57:
-        return True
 
-    return check_digits
-def signup():
-    
-    name=input("enter your name:").strip()
-  
-    while(len(name)<3 or check_digit(name) ):
-        print("length of name should be greater than 2 or not contain any digit")
-        name=input("enter your name:").lower().strip()
-    email=input("enter you email:").lower().strip()
-    while('.com' not in email or'@' not in email or "gmail" not in email):
-        if '.com ' not in email:
-            print("email should be includ .com")
+def check_digit_in_name(name: str) -> bool:
+    """Check if the name contains any digit."""
+    return any(char.isdigit() for char in name)
+
+
+def signup() -> dict:
+    """Sign up a new user and return user data with hashed password."""
+    # Name input
+    name = input("Enter your name: ").strip()
+    while len(name) < 3 or check_digit_in_name(name):
+        print("Length of name should be at least 3 and contain no digits")
+        name = input("Enter your name: ").strip()
+
+    # Email input
+    email = input("Enter your email: ").lower().strip()
+    while '.com' not in email or '@' not in email or "gmail" not in email:
+        if '.com' not in email:
+            print("Email should include .com")
         if '@' not in email:
-            print("email should include @")    
-        email=input("enter your email:").lower().strip()
+            print("Email should include @")
+        email = input("Enter your email: ").lower().strip()
 
-    # password 
-    password=input("enter your password:").strip()
-    
-    while(True):
-     check=check_password(password)
-    
-     if check==True:
-        break
-     else :
-        password=input("Enter your password:").strip()   
-    
-    id=input("enter your id:").strip()
-    while(id.isdigit()==False):
-        print("id should contain only digits")
-        id=input("enter your id:").strip()
-    
-    return {"name":name,"email":email,"password":password,"id":id}
+    # Password input with masking
+    password = pwinput.pwinput(prompt="Enter your password: ").strip()
+    while not check_password(password):
+        password = pwinput.pwinput(prompt="Enter your password again: ").strip()
+
+    # Hash the password
+    hashed_password = hash_password(password)
+
+    # Generate a unique user ID
+    user_id = str(uuid.uuid4())
+
+    return {
+        "name": name,
+        "email": email,
+        "password": hashed_password,
+        "id": user_id
+    }
