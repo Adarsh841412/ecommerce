@@ -1,38 +1,43 @@
-def check_password(password):
+import hashlib
+import pwinput
+
+
+def hash_password(password: str) -> str:
+    """Return SHA-256 hash of the password."""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
+def verify_password(input_password: str, stored_hash: str) -> bool:
+    """Check if the input password matches the stored hashed password."""
+    return hash_password(input_password) == stored_hash
+
+
+def check_password(password: str) -> bool:
+    """Validate password complexity rules."""
     checkdigit = False
     check_capital_alphabet = False
     check_small_alphabet = False
     check_special_characters = False
 
     for i in password:
-    
-        if ord(i) >= 97 and ord(i) <= 122:
+        if 'a' <= i <= 'z':
             check_small_alphabet = True
-
-  
-        elif ord(i) >= 65 and ord(i) <= 90:
+        elif 'A' <= i <= 'Z':
             check_capital_alphabet = True
-
-    
-        elif ord(i) >= 48 and ord(i) <= 57:
+        elif '0' <= i <= '9':
             checkdigit = True
-
-      
         elif i in "@$*&#":
             check_special_characters = True
 
     if not checkdigit:
         print("Password should contain at least one digit")
         return False
-
     if not check_capital_alphabet:
         print("Password should contain at least one uppercase letter")
         return False
-
     if not check_small_alphabet:
         print("Password should contain at least one lowercase letter")
         return False
-
     if not check_special_characters:
         print("Password should contain at least one special character")
         return False
@@ -40,45 +45,54 @@ def check_password(password):
     return True
 
 
-def reset_password(user, user_data):
+def reset_password(user: dict, user_data: list) -> bool:
+    """Reset the password for the given user."""
     data = input("Enter your correct email: ").strip()
 
-    if data == user["email"]:
-        newPassword = input("Enter new password: ").strip()
-        while(True):
-           check_now= check_password(newPassword)
-           if check_now==False:
-            newPassword=input("Enter your password again:")
-           if check_now==True:
-            user["password"] = newPassword
-            break
-
-
-        for u in user_data:
-            if u["email"] == user["email"]:
-                u["password"] = newPassword
-                print("Password reset successfully")
-                print("re-enter you password and email")
-                return True
-        print("Your email not found in database")
-    else:
+    if data != user["email"]:
         print("Incorrect email")
         return False
-def login(user_data, email, password):
+
+    new_password = pwinput.pwinput(prompt="Enter your new password: ")
+
+    while not check_password(new_password):
+        new_password = pwinput.pwinput(prompt="Enter your new password again: ")
+
+    hashed_new_password = hash_password(new_password)
+
+    for u in user_data:
+        if u["email"] == user["email"]:
+            u["password"] = hashed_new_password
+            print("Password reset successfully")
+            print("Re-enter your email and password")
+            return True
+
+    print("Your email not found in database")
+    return False
+
+
+def login(user_data: list, email: str, password: str) -> str:
+    """Login function using hashed passwords."""
     for user in user_data:
-        if user["email"] == email and user["password"] == password:
+
+        if user["email"] == email and verify_password(password, user["password"]):
             return "success"
-        elif user["email"]!=email:
-            return "wrongemail"
-        elif user["email"] == email and user["password"] != password:
-            print("wrong password try again ")
-            choice = input("Press1 for try agaoin\nPress 2 to reset your password\n")
-            if choice=='1':
+
+        elif user["email"] == email and not verify_password(password, user["password"]):
+            print("Wrong password, try again")
+            choice = input(
+                "Press 1 to try again\n"
+                "Press 2 to reset your password\n"
+            ).strip()
+
+            if choice == '1':
                 return "tryagain"
-            if choice=='2':
-               check_now= reset_password(user, user_data)
-               while check_now==False:
-                reset_password(user,user_data)
-                return "reset"    
+            elif choice == '2':
+                check_now = reset_password(user, user_data)
+                if check_now:
+                    return "reset"
+                else:
+                    return "fail"
             return "fail"
+
     return "not_found"
